@@ -1,0 +1,12 @@
+// 设置antd按需加载
+{
+  "presets": ["next/babel"],
+  "plugins": [
+    [
+      "import",
+      {
+        "libraryName":"antd"
+      }
+    ]
+  ]
+}
