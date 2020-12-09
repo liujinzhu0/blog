@@ -1,15 +1,25 @@
 import React from "react"
 import Head from "next/head"
 import { Row, Col, Affix, Icon, Breadcrumb } from "antd"
-import ReactMarkDown from "react-markdown"
+/* 导航 */
 import MarkNav from "markdown-navbar"
 import "markdown-navbar/dist/navbar.css"
+/* markDown */
+import marked from "marked"
+import hljs from "highlight.js"
+import "highlight.js/styles/monokai-sublime.css"
 
+import ReactMarkdown from 'react-markdown'
+
+
+
+/* 组件 */
 import Header from "../components/Header"
 import Author from "../components/Author"
 import Advert from "../components/Advert"
 import Footer from "../components/Footer"
 import "../static/pages/detailed.css"
+import Axios from "axios"
 
 
 let markdown='# P01:课程介绍和环境搭建\n' +
@@ -49,7 +59,25 @@ let markdown='# P01:课程介绍和环境搭建\n' +
 
 
 
-const Detailed = () => {
+const Detailed = (props) => {
+  console.log(props)
+  const renderer = new marked.Renderer()
+  marked.setOptions({
+    renderer:renderer,
+    gfm:false,
+    pedantic:false,
+    sanitize:false,
+    tables:true,
+    breaks:false,
+    smartLists:true,
+    smartypants:true,
+    highlight:function(code){
+      return hljs.highlightAuto(code).value
+    }
+  })
+let html = marked(markdown)
+
+
   return (
     <>
       <Head>
@@ -79,11 +107,11 @@ const Detailed = () => {
               </div>
               {/* 内容 */}
               <div className="detailed-content">
-             <ReactMarkDown
-             source={markdown}
+             <ReactMarkdown
+             source={html}
              escapeHtml={false}
-             ></ReactMarkDown>
-</div>
+             ></ReactMarkdown>
+          </div>
 
 
 
@@ -119,4 +147,17 @@ const Detailed = () => {
     </>
   )
 }
+/* 相当于生命周期函数 */
+Detailed.getInitialProps = async (context)=> {
+let id=context.query.id
+const promise = new Promise((resolve)=>{
+  Axios("http://localhost:7001/default/getArticleById/"+id).then(res=>{
+    console.log(res)
+    resolve(res.data)
+  })
+})
+return await promise
+}
+
+
 export default Detailed;
